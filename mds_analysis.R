@@ -41,7 +41,7 @@ for (i in number) {
     DD <- c(dna,dnb,JD)
     Y =t(DD)
 		
-		#write out the results of all JD scores for these pathways
+    #write out the results of all JD scores for these pathways
     write.table(Y, file="Jaccard_distance_final_CAD.txt", 
                 append=TRUE, row.names=FALSE,col.names = FALSE)  
   }
