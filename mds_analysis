@@ -1,0 +1,77 @@
+
+###The top KEGG pathways in CAD:
+setwd("C:\\Users\\MYL\\Desktop\\Jaccard_distance\\")
+if(!require("proxy"))install.packages("proxy")
+library(proxy)
+if(!require("reshape"))install.packages("reshape")
+library(reshape)
+
+##因为文件每次都需要进行整理，这里需要的文件格式是：通路名+基因list
+##如果基因list比较小，这样可以利用Excel直接进行转换
+##如果基因list比较大，我们可以用Notepad打开，Ctrl+F, 选中扩展（\n,\t···），将逗号替换成制表符'\t'。
+##read.delim()默认数据之间是制表符，read.table()默认是空格.
+path1=read.delim("pathway-KEGG-CAD.txt",header=FALSE,sep='\t')
+path<- path1[,-1]
+
+row.names(path)<-path1[,1]   ##将path1的第一列给path命名
+path2<-as.matrix(path)
+number <- seq(1,length(path[,1]),1)
+
+#计算两个通路之间的MDS值
+for (i in number) {
+  for (j in number){
+    
+    d1<-intersect(path2[i,],path2[j,])
+    d2<-union(path2[i,],path2[j,])
+    JD=length(d1)/length(d2)
+    JD1=1-JD
+    dnb= row.names(path2)[i]
+    dna=row.names(path2)[j]
+    
+    DD <- c(dna,dnb,JD)
+    Y =t(DD)
+    
+    write.table(Y, file="Jaccard_distance_final_CAD.txt", 
+                append=TRUE, row.names=FALSE,col.names = FALSE)    ###这里注意write.csv()不能用append参数
+    ####注意这里如果重新跑程序需要删除这个文件，因此append=TRUE,不然会保留之前的数据信息
+  }
+}
+
+Data_11 <- read.table("Jaccard_distance_final_CAD.txt",header = FALSE)
+anno <- read.table("name_KEGG_CAD.txt",header=TRUE) #导入通路名注释文件
+
+colnames(Data_11) <- c("time","variable","value") ##给每一列命名
+Data_11$time <- anno$ID[match(Data_11$time,anno$Name)] ###对将data中的time进行anno中的对应列注释替换
+
+data_cast<-cast(Data_11,time~variable) ###将data数据转换成我们想要的格式,详细见reshape包的代码及图形
+data_cast$time <- anno$Name[match(data_cast$time,anno$ID)] ###对将data_cast中的time进行anno中的对应列注释替换
+
+
+####计算MDS:
+data_cast_2 <-as.dist(data_cast) ###将数据转换成dist类型
+voles.mds=cmdscale(data_cast_2,k=9,eig=T)
+
+sum(abs(voles.mds$eig[1:2]))/sum(abs(voles.mds$eig))
+sum((voles.mds$eig[1:2])^2)/sum((voles.mds$eig)^2)
+
+MDS_component_1 = voles.mds$points[,1]
+MDS_component_2 = voles.mds$points[,2]
+plot(MDS_component_1,MDS_component_2,cex=1.8,pch=21,col = "black", bg = "green")
+text(MDS_component_1,MDS_component_2, row.names(voles.mds$points),cex=0.6,pos=4) ###标识出pathway name
+
+
+
+#####重新画图：
+dat_1 <- read.table("anno_KEGG_CAD.txt",header=TRUE)
+data_temp <- data.frame(dat_1,MDS_component_1,MDS_component_2)
+cPal <- colorRampPalette(c('yellow','red'))
+datCol<-cPal(18)[as.numeric(cut(dat_1$Zscore,breaks = 18))]
+
+
+######气泡图
+symbols(MDS_component_1,MDS_component_2,circle = data_temp$Zscore,inches=0.15,col = "black", bg = datCol)
+text(MDS_component_1,MDS_component_2, row.names(voles.mds$points),cex=0.6,pos=4) ###标识出pathway name
+
+
+
+
