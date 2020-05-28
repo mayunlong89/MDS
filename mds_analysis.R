@@ -4,7 +4,7 @@
 
 #Part I for preparation
 
-#First set up the directory for R
+#Set up the directory for R
 #A example:
 setwd("C:\\Users\\MYL\\Desktop\\Jaccard_distance\\")
 
@@ -17,14 +17,14 @@ library(proxy)
 library(reshape)
 
 #read the .txt file that contains the 29 significant enriched pathways
-#deal with the file for subsequent analysis
+#deal with the .txt file for subsequent analysis
 path1=read.delim("pathway-KEGG-CAD.txt",header=FALSE,sep='\t')
 path<- path1[,-1]
 row.names(path)<-path1[,1]
 path2<-as.matrix(path)
 number <- seq(1,length(path[,1]),1)
 
-#Part II for calculate Jaccard distance (JD) score
+#Part II for calculating Jaccard distance (JD) score
 
 #calculate the JD score among these 29 significant pathways
 #Calculate the JD score for two pathways each time
@@ -47,7 +47,7 @@ for (i in number) {
   }
 }
 
-#Part III for re-load data
+#Part III for re-loading data
 
 #Re-read the JD score from the Jaccard_distance_final_CAD.txt
 Data_11 <- read.table("Jaccard_distance_final_CAD.txt",header = FALSE)
