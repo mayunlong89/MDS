@@ -1,10 +1,10 @@
 #Rscript
 #Authors: Yunlong Ma
-##The top KEGG pathways significantly enriched by genes associated with coronary artery disease(CAD):
+##KEGG pathways significantly enriched by genes associated with coronary artery disease(CAD):
 
 #Part I for preparation
 
-#Set up the directory for R
+#Set the directory for R
 #A example:
 setwd("C:\\Users\\MYL\\Desktop\\Jaccard_distance\\")
 
